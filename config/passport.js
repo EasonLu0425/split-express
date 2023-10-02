@@ -2,10 +2,6 @@ const passport = require("passport");
 const LocalStrategy = require("passport-local");
 const bcrypt = require("bcryptjs");
 const { User } = require("../models");
-const passportJWT = require("passport-jwt");
-const JWTStrategy = passportJWT.Strategy;
-const ExtractJWT = passportJWT.ExtractJwt;
-
 // set up Passport strategy
 passport.use(
   new LocalStrategy(
@@ -17,45 +13,34 @@ passport.use(
     },
     // authenticate user
     (account, password, cb) => {
-      User.findOne({ where: { account } })
-        .then((user) => {
-          if (!user) {
-            return cb(null, false, { message: "帳號或密碼輸入錯誤！" });
-          }
-          bcrypt.compare(password, user.password).then((res) => {
-            if (!res) {
-              return cb(null, false, { message: "帳號或密碼輸入錯誤！" });
-            }
-            return cb(null, user);
+      User.findOne({ where: { account } }).then((user) => {
+        if (!user)
+          return cb(null, false, {
+            message: "帳號或密碼錯誤!",
           });
-        })
+        bcrypt.compare(password, user.password).then((res) => {
+          if (!res)
+            return cb(null, false, {
+              message: "帳號或密碼錯誤!",
+            });
+          return cb(null, user);
+        });
+      });
     }
   )
 );
-
-const jwtOptions = {
-  jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-  secretOrKey: process.env.JWT_SECRET,
-};
-
-passport.use(
-  new JWTStrategy(jwtOptions, (jwtPayload, cb) => {
-    User.findByPk(jwtPayload.id)
-      .then((user) => cb(null, user))
-      .catch((err) => cb(err));
-  })
-);
-
 // serialize and deserialize user
 passport.serializeUser((user, cb) => {
+  console.log('序列化到req囉!', user.id)
   cb(null, user.id);
 });
 passport.deserializeUser((id, cb) => {
-  User.findByPk(id)
-    .then((user) => {
-      console.log(user)
-      cb(null, user.toJSON());
-    })
-    .catch((err) => cb(err));
+  console.log("Deserializing user...");
+  User.findByPk(id).then((user) => {
+    console.log('我在執行反序列化囉!',user); //暫時添加
+    return cb(null, user);
+  });
 });
+
+
 module.exports = passport;

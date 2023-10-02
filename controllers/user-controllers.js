@@ -31,18 +31,22 @@ const userController = {
   },
   login: (req, res, next) => {
     try {
+      console.log('login-req.user', req.user);
       const userData = req.user;
-      const authToken = jwt.sign(userData, process.env.JWT_SECRET, {
-        expiresIn: "30d",
-      });
+      req.session.userData = req.user
+      // const authToken = jwt.sign(userData, process.env.JWT_SECRET, {
+      //   expiresIn: "30d",
+      // });
       res.json({
         status: "success",
-        data: {
-          authToken,
-          user: userData,
-        },
+        result: userData.id
+        // {
+        //   authToken,
+        //   user: userData,
+        // },
       });
     } catch (err) {
+      console.log(err)
       res.status(500).json({
         status: "error",
         message: err.message,
@@ -50,9 +54,12 @@ const userController = {
     }
   },
   logout: (req, res, next) => {
-    req.flash("success_messages", "登出成功！");
     req.logout();
-    res.redirect("/login");
+    console.log('登出', req.user)
+    return res.json({
+      status:'success',
+      message:'成功登出!'
+    })
   },
   getAllUsers: async (req, res, next) => {
     try {
@@ -63,8 +70,11 @@ const userController = {
         const { password, ...userWithoutPassword } = user.toJSON();
         return userWithoutPassword;
       });
-      res.json(usersWithoutPassword);
+      res.json({
+        status:'success',
+        result:usersWithoutPassword});
     } catch (err) {
+      console.log(err)
       res.status(500).json({
         status: "error",
         message: err.message,

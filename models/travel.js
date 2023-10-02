@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
         // otherKey:'userId',
         as:'groupMembers'
       })
+      Travel.hasMany(models.Item, {foreignKey: 'travelId'})
     }
   }
   Travel.init(
