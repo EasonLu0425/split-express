@@ -4,6 +4,7 @@ const travelController = {
   getTravels: async (req, res, next) => {
     try {
       const currentUser = req.user
+      console.log(currentUser)
       const travels = await Travel.findAll({
         include: [
           {

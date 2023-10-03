@@ -1,6 +1,8 @@
 const { User } = require("../models");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const Sequelize = require("sequelize");
+const Op = Sequelize.Op;
 
 const userController = {
   signUp: (req, res, next) => {
@@ -31,22 +33,21 @@ const userController = {
   },
   login: (req, res, next) => {
     try {
-      console.log('login-req.user', req.user);
+      console.log("login-req.user", req.user);
       const userData = req.user;
-      req.session.userData = req.user
       // const authToken = jwt.sign(userData, process.env.JWT_SECRET, {
       //   expiresIn: "30d",
       // });
       res.json({
         status: "success",
-        result: userData.id
+        result: { id: userData.id },
         // {
         //   authToken,
         //   user: userData,
         // },
       });
     } catch (err) {
-      console.log(err)
+      console.log(err);
       res.status(500).json({
         status: "error",
         message: err.message,
@@ -55,26 +56,33 @@ const userController = {
   },
   logout: (req, res, next) => {
     req.logout();
-    console.log('登出', req.user)
+    console.log("登出", req.user);
     return res.json({
-      status:'success',
-      message:'成功登出!'
-    })
+      status: "success",
+      message: "成功登出!",
+    });
   },
   getAllUsers: async (req, res, next) => {
     try {
       const currentUser = req.user;
       // 之後加入撇除自己以外的user
-      const allUsers = await User.findAll();
+      const allUsers = await User.findAll({
+        where: {
+          id: {
+            [Op.not]: currentUser.id,
+          },
+        },
+      });
       const usersWithoutPassword = allUsers.map((user) => {
         const { password, ...userWithoutPassword } = user.toJSON();
         return userWithoutPassword;
       });
       res.json({
-        status:'success',
-        result:usersWithoutPassword});
+        status: "success",
+        result: usersWithoutPassword,
+      });
     } catch (err) {
-      console.log(err)
+      console.log(err);
       res.status(500).json({
         status: "error",
         message: err.message,

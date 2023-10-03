@@ -28,6 +28,7 @@ router.get("/splitWizard/groups/:groupId/:itemId/edit", itemController.getItem);
 router.put("/splitWizard/groups/:groupId/:itemId", itemController.editItem);
 router.get("/splitWizard/groups/:groupId/members", travelController.getTravelMembers);
 router.get("/splitWizard/groups/:groupId/:itemId",itemController.getItem);
+router.delete("/splitWizard/groups/:groupId/:itemId", itemController.deleteItem);
 router.post("/splitWizard/groups/:groupId/addItem", itemController.addItem);
 router.get("/splitWizard/groups/:groupId", travelController.getTravel);
 router.get("/splitWizard/groups", travelController.getTravels);
