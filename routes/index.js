@@ -4,9 +4,10 @@ const passport = require('../config/passport');
 const userController = require("../controllers/user-controllers");
 const itemController = require("../controllers/item-controller");
 const travelController = require("../controllers/group-controller");
+const userGroupConnController = require("../controllers/userGroupConn-controller");
+const notificationController = require('../controllers/notification-controller')
 const { userLogin } = require("../middleware/login-handler");
 const { apiErrorHandler } = require("../middleware/error-handler");
-const userGroupConnController = require("../controllers/userGroupConn-controller");
 
 router.post("/splitWizard/register", userController.signUp);
 router.post(
@@ -33,8 +34,11 @@ router.post("/splitWizard/groups/:groupId/addItem", itemController.addItem);
 router.get("/splitWizard/groups/:groupId", travelController.getTravel);
 router.get("/splitWizard/groups", travelController.getTravels);
 router.post("/splitWizard/addMemberToGroup",  userGroupConnController.addMemberToGroup );
-router.get("/splitWizard/allMembers", userController.getAllUsers);
 router.post("/splitWizard/addGroup", travelController.addTravel);
+router.get("/splitWizard/allMembers", userController.getAllUsers);
+router.get("/splitWizard/getNotifications", notificationController.getNotifications);
+router.post("/splitWizard/readNotification", notificationController.readNotification);
+router.post("/splitWizard/addNotifications",notificationController.addNotification);
 router.use("/", apiErrorHandler);
 router.get("/", (req, res) => {
   res.send("This is SW from express router");

@@ -31,13 +31,10 @@ passport.use(
 );
 // serialize and deserialize user
 passport.serializeUser((user, cb) => {
-  console.log('序列化到req囉!', user.id)
   cb(null, user.id);
 });
 passport.deserializeUser((id, cb) => {
-  console.log("Deserializing user...");
   User.findByPk(id).then((user) => {
-    console.log('我在執行反序列化囉!',user); //暫時添加
     return cb(null, user);
   });
 });

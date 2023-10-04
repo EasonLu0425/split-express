@@ -9,6 +9,15 @@ const flash = require("connect-flash");
 const passport = require("./config/passport");
 const routes = require("./routes");
 
+const http = require("http");
+const server = http.createServer(app);
+const { Server } = require("socket.io")(server, {
+  transports: ["websocket"]
+});
+const io = new Server(server);
+
+io.attach(server);
+
 const app = express();
 const port = 5000;
 const SESSION_SECRET = "secret";
@@ -45,9 +54,10 @@ app.use((req, res, next) => {
   res.locals.user = req.user;
   next();
 });
+const socket = require('./helpers/socket-helper')(io)
 app.use(routes);
 
-app.listen(port, () => {
+server.listen(port, () => {
   console.log(`The web is on localhost:${port}`);
 });
 

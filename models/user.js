@@ -11,10 +11,17 @@ module.exports = (sequelize, DataTypes) => {
       User.belongsToMany(models.Travel, {
         through: models.UserTravelConn,
         foreignKey: "userId",
-        // otherKey: "travelId",
         as: "usertravels",
       });
-      User.hasMany(models.ItemDetail, {foreignKey:'userId'})
+      User.hasMany(models.ItemDetail, { foreignKey: "userId" });
+      User.hasMany(models.Notification, {
+        foreignKey: "receiverId",
+        as: "receivedNotifications",
+      });
+      User.hasMany(models.Notification, {
+        foreignKey: "senderId",
+        as: "sentNotifications",
+      });
     }
   }
   User.init(
