@@ -3,8 +3,7 @@ const { Travel, User, UserTravelConn, Item, ItemDetail } = require("../models");
 const travelController = {
   getTravels: async (req, res, next) => {
     try {
-      const currentUser = req.user
-      console.log(currentUser)
+      const currentUser = req.user;
       const travels = await Travel.findAll({
         include: [
           {
@@ -17,9 +16,12 @@ const travelController = {
       const travelsWithCurrentUser = travels.filter((travel) =>
         travel.groupMembers.some((member) => member.id === currentUser.id)
       );
-      res.json(travelsWithCurrentUser);
+      res.json({
+        status:'success',
+        result: travelsWithCurrentUser
+      });
     } catch (err) {
-      console.log(err)
+      console.log(err);
       res.status(500).json({
         status: "error",
         message: err.message,
@@ -47,7 +49,7 @@ const travelController = {
       return res.json({
         status: "success",
         message: "創建行程成功!",
-        result:{id:newTravel.id}
+        result: { id: newTravel.id },
       });
     } catch (err) {
       res.status(500).json({
@@ -77,7 +79,10 @@ const travelController = {
           },
         ],
       });
-      return res.json(travelData);
+      return res.json({
+        status: "success",
+        result: travelData,
+      });
     } catch (err) {
       console.error(err);
       res.status(500).json({
@@ -88,7 +93,7 @@ const travelController = {
   },
   getTravelMembers: async (req, res, next) => {
     try {
-      const travelId = req.params.groupId
+      const travelId = req.params.groupId;
       const travel = await Travel.findByPk(travelId, {
         include: [
           {

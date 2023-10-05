@@ -78,16 +78,16 @@ const notificationController = {
             receiverId: receiver.id,
             senderId: req.user.id,
             type: addNotiData.type,
-            text:'邀請您至',
-            read:false,
-            travelId: addNotiData.groupId
+            text: "邀請您至",
+            read: false,
+            travelId: addNotiData.group.id,
           });
         });
       }
 
       res.json({
-        status:'success'
-      })
+        status: "success",
+      });
     } catch (err) {
       console.log(err);
       res.status(500).json({

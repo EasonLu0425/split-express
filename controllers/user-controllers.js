@@ -33,7 +33,6 @@ const userController = {
   },
   login: (req, res, next) => {
     try {
-      console.log("login-req.user", req.user);
       const userData = req.user;
       // const authToken = jwt.sign(userData, process.env.JWT_SECRET, {
       //   expiresIn: "30d",

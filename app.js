@@ -9,15 +9,6 @@ const flash = require("connect-flash");
 const passport = require("./config/passport");
 const routes = require("./routes");
 
-const http = require("http");
-const server = http.createServer(app);
-const { Server } = require("socket.io")(server, {
-  transports: ["websocket"]
-});
-const io = new Server(server);
-
-io.attach(server);
-
 const app = express();
 const port = 5000;
 const SESSION_SECRET = "secret";
@@ -27,20 +18,44 @@ app.use(
     credentials: true,
   })
 );
+const http = require("http");
+const server = http.createServer(app);
+const { Server } = require("socket.io");
 
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true,
+  },
+  path: "/socket.io",
+});
+io.attach(server);
+const sessionMiddleware = session({
+  secret: SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: false,
+  },
+});
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(
-  session({
-    secret: SESSION_SECRET,
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: false,
-    },
-  })
-);
+// app.use(
+//   session({
+//     secret: SESSION_SECRET,
+//     resave: false,
+//     saveUninitialized: false,
+//     cookie: {
+//       secure: false,
+//     },
+//   })
+// );
+app.use(sessionMiddleware);
+io.use((socket, next) => {
+  sessionMiddleware(socket.request, socket.request.res, next);
+});
 app.use(passport.initialize());
 app.use(passport.session());
 app.use((req, res, next) => {
@@ -54,7 +69,7 @@ app.use((req, res, next) => {
   res.locals.user = req.user;
   next();
 });
-const socket = require('./helpers/socket-helper')(io)
+const socket = require("./helpers/socket-helper")(io);
 app.use(routes);
 
 server.listen(port, () => {
