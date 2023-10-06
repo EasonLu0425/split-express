@@ -41,7 +41,10 @@ const itemController = {
         itemTime: itemData.itemTime,
         users,
       };
-      res.json(jsonData);
+      res.json({
+        status: "success",
+        result: jsonData,
+      });
     } catch (err) {
       res.status(500).json({
         status: "error",
@@ -54,35 +57,13 @@ const itemController = {
       console.log("editItem!");
       const itemId = req.params.itemId;
       const formData = req.body;
-      console.log(formData);
       const item = await Item.findByPk(itemId);
       item.update({
         name: formData.itemName,
         amount: formData.itemAmount,
         itemTime: formData.itemTime,
       });
-      const itemDetails = await ItemDetail.findAll({
-        where: { itemId },
-      });
-      for (const itemDetail of itemDetails) {
-        await itemDetail.destroy();
-      }
-      await formData.payer.forEach((payer) => {
-        ItemDetail.create({
-          userId: payer.id,
-          itemId,
-          amount: Number(payer.amount),
-          payer: true,
-        });
-      });
-      await formData.ower.forEach((ower) => {
-        ItemDetail.create({
-          userId: ower.id,
-          itemId,
-          amount: Number(ower.amount),
-          payer: false,
-        });
-      });
+
       return res.json({
         status: "success",
         message: "修改成功!",
@@ -105,25 +86,11 @@ const itemController = {
         itemTime: formData.itemTime,
         travelId,
       });
-      await formData.payer.forEach((payer) => {
-        ItemDetail.create({
-          userId: payer.id,
-          itemId: newItem.id,
-          amount: Number(payer.amount),
-          payer: true,
-        });
-      });
-      await formData.ower.forEach((ower) => {
-        ItemDetail.create({
-          userId: ower.id,
-          itemId: newItem.id,
-          amount: Number(ower.amount),
-          payer: false,
-        });
-      });
+
       return res.json({
         status: "success",
         message: "成功建立項目!",
+        result: { id: newItem.id },
       });
     } catch (err) {
       res.status(500).json({
@@ -133,7 +100,7 @@ const itemController = {
     }
   },
   deleteItem: async (req, res) => {
-    try{
+    try {
       const travelId = req.params.groupId;
       const itemId = req.params.itemId;
       const deletedItem = await Item.findByPk(itemId);
@@ -148,7 +115,7 @@ const itemController = {
         status: "success",
         message: "再見了，我的帳單",
       });
-    } catch(err) {
+    } catch (err) {
       res.status(500).json({
         status: "error",
         message: err.message,
