@@ -9,6 +9,7 @@ const travelController = {
           {
             model: User,
             as: "groupMembers",
+            attributes: { exclude: ["password"] },
           },
         ],
         nest: true,
@@ -30,22 +31,14 @@ const travelController = {
   },
   addTravel: async (req, res, next) => {
     try {
-      const { name, members } = req.body;
+      const { name } = req.body;
       if (!name) throw new Error("請定義行程名稱!");
-      // if (members.length === 0) throw new Error("至少邀請一位加入!");
       const newTravel = await Travel.create({
         name,
         status: false,
         redirect: false,
         archive: false,
       });
-      // await members.forEach((user) => {
-      //   UserTravelConn.create({
-      //     userId: user.value,
-      //     travelId: newTravel.id,
-      //     net: 0,
-      //   });
-      // });
       return res.json({
         status: "success",
         message: "創建行程成功!",
@@ -72,6 +65,7 @@ const travelController = {
                 include: [
                   {
                     model: User,
+                    attributes: { exclude: ["password"] },
                   },
                 ],
               },

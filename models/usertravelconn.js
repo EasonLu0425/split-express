@@ -11,6 +11,15 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      UserTravelConn.belongsTo(models.User, {
+        foreignKey: 'userId',
+        as: 'user', // 设置别名为'user'
+      });
+
+      UserTravelConn.belongsTo(models.Travel, {
+        foreignKey: 'travelId',
+        as: 'travel', // 设置别名为'travel'
+      });
     }
   };
   UserTravelConn.init(

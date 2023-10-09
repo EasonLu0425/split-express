@@ -7,6 +7,7 @@ const travelController = require("../controllers/group-controller");
 const userGroupConnController = require("../controllers/userGroupConn-controller");
 const notificationController = require('../controllers/notification-controller')
 const itemDetailController = require('../controllers/itemDetail-controller')
+const resultController = require('../controllers/result-controller')
 const { userLogin } = require("../middleware/login-handler");
 const { apiErrorHandler } = require("../middleware/error-handler");
 
@@ -27,9 +28,14 @@ router.get("/splitWizard/api/messages", (req, res) => {
   res.json(messages);
 });
 router.get("/splitWizard/groups/:groupId/:itemId/edit", itemController.getItem);
+router.put("/splitWizard/groups/:groupId/switchResultStatus",resultController.switchResultStatus);
 router.put("/splitWizard/groups/:groupId/:itemId", itemController.editItem);
 router.put("/splitWizard/groups/:groupId/:itemId/details", itemDetailController.editItemDetails);
+router.delete("/splitWizard/groups/:groupId/:itemId/details",itemDetailController.deleteItemDetails);
 router.get("/splitWizard/groups/:groupId/members", travelController.getTravelMembers);
+router.get("/splitWizard/groups/:groupId/overView", userGroupConnController.getOverview);
+router.get("/splitWizard/groups/:groupId/getResult",resultController.getResult);
+router.post("/splitWizard/groups/:groupId/createSettlements", resultController.createResult);
 router.get("/splitWizard/groups/:groupId/:itemId",itemController.getItem);
 router.post("/splitWizard/groups/:groupId/:itemId/addItemDetails",itemDetailController.addItemDetails);
 router.delete("/splitWizard/groups/:groupId/:itemId", itemController.deleteItem);

@@ -71,14 +71,11 @@ const userController = {
             [Op.not]: currentUser.id,
           },
         },
-      });
-      const usersWithoutPassword = allUsers.map((user) => {
-        const { password, ...userWithoutPassword } = user.toJSON();
-        return userWithoutPassword;
+        attributes: { exclude: ["password"] },
       });
       res.json({
         status: "success",
-        result: usersWithoutPassword,
+        result: allUsers,
       });
     } catch (err) {
       console.log(err);

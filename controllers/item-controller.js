@@ -104,13 +104,13 @@ const itemController = {
       const travelId = req.params.groupId;
       const itemId = req.params.itemId;
       const deletedItem = await Item.findByPk(itemId);
-      const deletedItemDetails = await ItemDetail.findAll({
-        where: { itemId },
-      });
+      // const deletedItemDetails = await ItemDetail.findAll({
+      //   where: { itemId },
+      // });
       await deletedItem.destroy();
-      for (const itemDetail of deletedItemDetails) {
-        await itemDetail.destroy();
-      }
+      // for (const itemDetail of deletedItemDetails) {
+      //   await itemDetail.destroy();
+      // }
       return res.json({
         status: "success",
         message: "再見了，我的帳單",

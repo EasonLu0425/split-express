@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
       })
       Travel.hasMany(models.Item, {foreignKey: 'travelId'})
       Travel.hasMany(models.Notification, {foreignKey: 'travelId'})
+      Travel.hasMany(models.Result, { foreignKey: "travelId" });
     }
   }
   Travel.init(

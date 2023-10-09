@@ -22,6 +22,14 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: "senderId",
         as: "sentNotifications",
       });
+      User.hasMany(models.Result, {
+        foreignKey: "owerId",
+        as: "owedResult",
+      });
+      User.hasMany(models.Result, {
+        foreignKey: "payerId",
+        as: "paidResult",
+      });
     }
   }
   User.init(

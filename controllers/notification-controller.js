@@ -10,7 +10,6 @@ const notificationController = {
         order: [["createdAt", "DESC"]],
         limit: 10,
       });
-      console.log("notis", notis);
       const formData = notis.map((noti) => {
         if (noti.type === 101) {
           return {
