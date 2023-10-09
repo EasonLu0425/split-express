@@ -3,7 +3,6 @@ const { Travel, User, UserTravelConn, Item, ItemDetail } = require("../models");
 const itemController = {
   getItem: async (req, res, next) => {
     try {
-      console.log("getItem!");
       const currentUser = req.User;
       const { groupId, itemId } = req.params;
       const travelData = await Travel.findByPk(groupId, {
@@ -36,6 +35,7 @@ const itemController = {
       });
       const jsonData = {
         groupName: travelData.name,
+        groupRedirect:travelData.redirect,
         itemName: itemData.name,
         amount: itemData.amount,
         itemTime: itemData.itemTime,

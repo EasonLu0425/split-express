@@ -29,6 +29,7 @@ router.get("/splitWizard/api/messages", (req, res) => {
 });
 router.get("/splitWizard/groups/:groupId/:itemId/edit", itemController.getItem);
 router.put("/splitWizard/groups/:groupId/switchResultStatus",resultController.switchResultStatus);
+router.put("/splitWizard/groups/:groupId/resetRedirect", travelController.resetGroupRedirect);
 router.put("/splitWizard/groups/:groupId/:itemId", itemController.editItem);
 router.put("/splitWizard/groups/:groupId/:itemId/details", itemDetailController.editItemDetails);
 router.delete("/splitWizard/groups/:groupId/:itemId/details",itemDetailController.deleteItemDetails);
@@ -52,5 +53,6 @@ router.use("/", apiErrorHandler);
 router.get("/", (req, res) => {
   res.send("This is SW from express router");
 });
+
 
 module.exports = router;

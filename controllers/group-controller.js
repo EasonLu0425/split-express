@@ -1,4 +1,11 @@
-const { Travel, User, UserTravelConn, Item, ItemDetail } = require("../models");
+const {
+  Travel,
+  User,
+  UserTravelConn,
+  Item,
+  ItemDetail,
+  Result,
+} = require("../models");
 
 const travelController = {
   getTravels: async (req, res, next) => {
@@ -18,8 +25,8 @@ const travelController = {
         travel.groupMembers.some((member) => member.id === currentUser.id)
       );
       res.json({
-        status:'success',
-        result: travelsWithCurrentUser
+        status: "success",
+        result: travelsWithCurrentUser,
       });
     } catch (err) {
       console.log(err);
@@ -103,7 +110,37 @@ const travelController = {
       // console.log(updatedGroupMembers)
       return res.json(updatedGroupMembers);
     } catch (err) {
-      console.error(err);
+      res.status(500).json({
+        status: "error",
+        message: err.message,
+      });
+    }
+  },
+  resetGroupRedirect: async (req, res) => {
+    try {
+      const groupId = req.params.groupId;
+      const groupData = await Travel.findByPk(groupId);
+      groupData.update({
+        redirect: false,
+      });
+      const resultData = await Result.findAll({
+        where: { travelId: groupId },
+      });
+      console.log('resultData', resultData)
+      if (resultData.length > 0) {
+        for (const result of resultData) {
+          await result.destroy();
+        }
+      }
+      res.json({
+        status: "success",
+        message: "重設redirect與刪除result成功",
+      });
+    } catch (err) {
+      res.status(500).json({
+        status: "error",
+        message: err.message,
+      });
     }
   },
 };
