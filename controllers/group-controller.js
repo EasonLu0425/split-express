@@ -79,7 +79,10 @@ const travelController = {
             ],
           },
         ],
+        order: [[{ model: Item }, "item_time", "DESC"]],
       });
+      
+
       return res.json({
         status: "success",
         result: travelData,
@@ -108,7 +111,10 @@ const travelController = {
         return userWithoutPassword;
       });
       // console.log(updatedGroupMembers)
-      return res.json(updatedGroupMembers);
+      return res.json({
+        status: "success",
+        result: updatedGroupMembers,
+      });
     } catch (err) {
       res.status(500).json({
         status: "error",
@@ -126,7 +132,6 @@ const travelController = {
       const resultData = await Result.findAll({
         where: { travelId: groupId },
       });
-      console.log('resultData', resultData)
       if (resultData.length > 0) {
         for (const result of resultData) {
           await result.destroy();
@@ -136,6 +141,22 @@ const travelController = {
         status: "success",
         message: "重設redirect與刪除result成功",
       });
+    } catch (err) {
+      res.status(500).json({
+        status: "error",
+        message: err.message,
+      });
+    }
+  },
+  putArchive: async (req, res) => {
+    try {
+      const groupId = req.params.groupId
+      const groupData = await Travel.findByPk(groupId)
+      groupData.update({archive: true})
+      return res.json ({
+        status:'success',
+        message:'成功封存此行程'
+      })
     } catch (err) {
       res.status(500).json({
         status: "error",

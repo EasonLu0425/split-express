@@ -9,13 +9,16 @@ const itemController = {
         include: [
           {
             model: Item,
+            as: "items",
             where: { id: itemId },
             include: [
               {
                 model: ItemDetail,
+                as:'details',
                 include: [
                   {
                     model: User,
+                    as:'member'
                   },
                 ],
               },
@@ -36,6 +39,7 @@ const itemController = {
       const jsonData = {
         groupName: travelData.name,
         groupRedirect:travelData.redirect,
+        groupArchive: travelData.archive,
         itemName: itemData.name,
         amount: itemData.amount,
         itemTime: itemData.itemTime,

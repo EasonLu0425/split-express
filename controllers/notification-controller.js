@@ -8,7 +8,7 @@ const notificationController = {
         where: { receiverId: currentUserId },
         include: [{ model: Travel }, { model: User, as: "sender" }],
         order: [["createdAt", "DESC"]],
-        limit: 10,
+        limit: 8,
       });
       const formData = notis.map((noti) => {
         if (noti.type === 101) {
@@ -25,15 +25,28 @@ const notificationController = {
             text: `${noti.sender.name}邀請您至${noti.Travel.name}`,
             read: noti.read,
             time: noti.createdAt,
-            type: noti.type,
+            type: "INVITATION",
+            groupId: noti.Travel.id,
+          };
+        } else if (noti.type === 301) {
+          return {
+            id: noti.id,
+            text: `${noti.sender.name}新增了一筆在${noti.Travel.name}的項目`,
+            read: noti.read,
+            time: noti.createdAt,
+            type: "ITEM_ADD",
+            groupId: noti.Travel.id,
+          };
+        } else if (noti.type === 302) {
+          return {
+            id: noti.id,
+            text: `${noti.sender.name}修改了一筆在${noti.Travel.name}的項目`,
+            read: noti.read,
+            time: noti.createdAt,
+            type: "ITEM_UPDATE",
             groupId: noti.Travel.id,
           };
         }
-        // else if (noti.type === 301) {
-        //   return {
-        //     text: `${noti.sender.name}修改了${noti.Travel.name}的`
-        //   }
-        // }
       });
       res.json({
         status: "success",
@@ -70,18 +83,45 @@ const notificationController = {
   addNotification: async (req, res) => {
     try {
       const addNotiData = req.body;
-      const receivers = addNotiData.receivers;
-      if (addNotiData.type === 201) {
+      const currentUserId = req.user.id
+      const receivers = addNotiData.receiverIds.filter(
+        (id) => id !== currentUserId
+      );
+
+      
+      if (addNotiData.type === "INVITATION") {
         await receivers.forEach((receiver) => {
           Notification.create({
-            receiverId: receiver.id,
+            receiverId: receiver,
             senderId: req.user.id,
-            type: addNotiData.type,
+            type: 201,
             text: "邀請您至",
             read: false,
-            travelId: addNotiData.group.id,
+            travelId: addNotiData.groupId,
           });
         });
+      } else if (addNotiData.type === "ITEM_ADD") {
+        await receivers.forEach((receiver) => {
+          Notification.create({
+            receiverId: receiver,
+            senderId: req.user.id,
+            type: 301,
+            text: "已新增了一筆行程中的項目",
+            read: false,
+            travelId: addNotiData.groupId,
+          });
+        });
+      } else if (addNotiData.type === "ITEM_UPDATE") {
+         await receivers.forEach((receiver) => {
+           Notification.create({
+             receiverId: receiver,
+             senderId: req.user.id,
+             type: 302,
+             text: "已修改了一筆行程中的項目",
+             read: false,
+             travelId: addNotiData.groupId,
+           });
+         });
       }
 
       res.json({

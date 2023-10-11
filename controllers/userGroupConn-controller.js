@@ -31,6 +31,7 @@ const userGroupConnController = {
       });
       const netData = {
         groupName: connData[0].travel.name,
+        groupArchive: connData[0].travel.archive,
         overView: connData.map((data) => {
           return {
             userId: data.userId,
