@@ -1,59 +1,144 @@
 const express = require("express");
 const router = express.Router();
-const passport = require('../config/passport');
+const passport = require("../config/passport");
 const userController = require("../controllers/user-controllers");
 const itemController = require("../controllers/item-controller");
 const travelController = require("../controllers/group-controller");
 const userGroupConnController = require("../controllers/userGroupConn-controller");
-const notificationController = require('../controllers/notification-controller')
-const itemDetailController = require('../controllers/itemDetail-controller')
-const resultController = require('../controllers/result-controller')
+const notificationController = require("../controllers/notification-controller");
+const itemDetailController = require("../controllers/itemDetail-controller");
+const resultController = require("../controllers/result-controller");
 const { userLogin } = require("../middleware/login-handler");
 const { apiErrorHandler } = require("../middleware/error-handler");
+const { authenticated } = require("../middleware/auth");
 
 router.post("/splitWizard/register", userController.signUp);
 router.post(
   "/splitWizard/login",
   passport.authenticate("local", {
     failureFlash: true,
+    session: false,
   }),
   userController.login
 );
 router.post("/splitWizard/logout", userController.logout);
-router.get("/splitWizard/api/messages", (req, res) => {
-  const messages = {
-    success_messages: res.locals.success_messages,
-    error_messages: res.locals.error_messages,
-  };
-  res.json(messages);
+
+router.get(
+  "/splitWizard/groups/:groupId/:itemId/edit",
+  authenticated,
+  itemController.getItem
+);
+router.put(
+  "/splitWizard/groups/:groupId/switchResultStatus",
+  authenticated,
+  resultController.switchResultStatus
+);
+router.put(
+  "/splitWizard/groups/:groupId/resetRedirect",
+  authenticated,
+  travelController.resetGroupRedirect
+);
+router.put(
+  "/splitWizard/groups/:groupId/putArchive",
+  authenticated,
+  travelController.putArchive
+);
+router.put(
+  "/splitWizard/groups/:groupId/:itemId",
+  authenticated,
+  itemController.editItem
+);
+router.put(
+  "/splitWizard/groups/:groupId/:itemId/details",
+  authenticated,
+  itemDetailController.editItemDetails
+);
+router.delete(
+  "/splitWizard/groups/:groupId/:itemId/details",
+  authenticated,
+  itemDetailController.deleteItemDetails
+);
+router.get(
+  "/splitWizard/groups/:groupId/members",
+  authenticated,
+  travelController.getTravelMembers
+);
+router.get(
+  "/splitWizard/groups/:groupId/overView",
+  authenticated,
+  userGroupConnController.getOverview
+);
+router.get(
+  "/splitWizard/groups/:groupId/getResult",
+  authenticated,
+  resultController.getResult
+);
+router.post(
+  "/splitWizard/groups/:groupId/createSettlements",
+  authenticated,
+  resultController.createResult
+);
+router.get(
+  "/splitWizard/groups/:groupId/:itemId",
+  authenticated,
+  itemController.getItem
+);
+router.post(
+  "/splitWizard/groups/:groupId/:itemId/addItemDetails",
+  authenticated,
+  itemDetailController.addItemDetails
+);
+router.delete(
+  "/splitWizard/groups/:groupId/:itemId",
+  authenticated,
+  itemController.deleteItem
+);
+router.post(
+  "/splitWizard/groups/:groupId/addItem",
+  authenticated,
+  itemController.addItem
+);
+router.get(
+  "/splitWizard/groups/:groupId",
+  authenticated,
+  travelController.getTravel
+);
+router.get("/splitWizard/groups", authenticated, travelController.getTravels);
+router.post(
+  "/splitWizard/addMemberToGroup",
+  authenticated,
+  userGroupConnController.addMemberToGroup
+);
+router.post("/splitWizard/addGroup", authenticated, travelController.addTravel);
+router.get(
+  "/splitWizard/allMembers",
+  authenticated,
+  userController.getAllUsers
+);
+router.get(
+  "/splitWizard/getNotifications",
+  authenticated,
+  notificationController.getNotifications
+);
+router.post(
+  "/splitWizard/readNotification",
+  authenticated,
+  notificationController.readNotification
+);
+router.post(
+  "/splitWizard/addNotifications",
+  authenticated,
+  notificationController.addNotification
+);
+router.get("/splitWizard/test-token", authenticated, (req, res)=> {
+  res.json({
+    success:true,
+    message:'驗證成功'
+  })
 });
-router.get("/splitWizard/groups/:groupId/:itemId/edit", itemController.getItem);
-router.put("/splitWizard/groups/:groupId/switchResultStatus",resultController.switchResultStatus);
-router.put("/splitWizard/groups/:groupId/resetRedirect", travelController.resetGroupRedirect);
-router.put("/splitWizard/groups/:groupId/putArchive",travelController.putArchive);
-router.put("/splitWizard/groups/:groupId/:itemId", itemController.editItem);
-router.put("/splitWizard/groups/:groupId/:itemId/details", itemDetailController.editItemDetails);
-router.delete("/splitWizard/groups/:groupId/:itemId/details",itemDetailController.deleteItemDetails);
-router.get("/splitWizard/groups/:groupId/members", travelController.getTravelMembers);
-router.get("/splitWizard/groups/:groupId/overView", userGroupConnController.getOverview);
-router.get("/splitWizard/groups/:groupId/getResult",resultController.getResult);
-router.post("/splitWizard/groups/:groupId/createSettlements", resultController.createResult);
-router.get("/splitWizard/groups/:groupId/:itemId",itemController.getItem);
-router.post("/splitWizard/groups/:groupId/:itemId/addItemDetails",itemDetailController.addItemDetails);
-router.delete("/splitWizard/groups/:groupId/:itemId", itemController.deleteItem);
-router.post("/splitWizard/groups/:groupId/addItem", itemController.addItem);
-router.get("/splitWizard/groups/:groupId", travelController.getTravel);
-router.get("/splitWizard/groups", travelController.getTravels);
-router.post("/splitWizard/addMemberToGroup",  userGroupConnController.addMemberToGroup );
-router.post("/splitWizard/addGroup", travelController.addTravel);
-router.get("/splitWizard/allMembers", userController.getAllUsers);
-router.get("/splitWizard/getNotifications", notificationController.getNotifications);
-router.post("/splitWizard/readNotification", notificationController.readNotification);
-router.post("/splitWizard/addNotifications",notificationController.addNotification);
 router.use("/", apiErrorHandler);
 router.get("/", (req, res) => {
   res.send("This is SW from express router");
 });
-
 
 module.exports = router;

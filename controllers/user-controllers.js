@@ -22,7 +22,10 @@ const userController = {
         })
       )
       .then((createdUser) => {
-        res.json({ status: "success", createdUser });
+        const authToken = jwt.sign(createdUser, process.env.JWT_SECRET, {
+          expiresIn: "30d",
+        });
+        res.json({ status: "success", result: { authToken } });
       })
       .catch((err) => {
         res.status(500).json({
@@ -34,16 +37,16 @@ const userController = {
   login: (req, res, next) => {
     try {
       const userData = req.user;
-      // const authToken = jwt.sign(userData, process.env.JWT_SECRET, {
-      //   expiresIn: "30d",
-      // });
+      const authToken = jwt.sign(req.user, process.env.JWT_SECRET, {
+        expiresIn: "30d",
+      });
       res.json({
         status: "success",
-        result: { id: userData.id },
-        // {
-        //   authToken,
-        //   user: userData,
-        // },
+        //{ id: userData.id },
+        result: {
+          authToken,
+          user: userData,
+        },
       });
     } catch (err) {
       console.log(err);

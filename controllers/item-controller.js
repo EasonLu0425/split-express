@@ -9,16 +9,13 @@ const itemController = {
         include: [
           {
             model: Item,
-            as: "items",
             where: { id: itemId },
             include: [
               {
                 model: ItemDetail,
-                as:'details',
                 include: [
                   {
                     model: User,
-                    as:'member'
                   },
                 ],
               },
