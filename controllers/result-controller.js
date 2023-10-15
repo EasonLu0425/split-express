@@ -17,8 +17,9 @@ const resultController = {
           { model: User, as: "user", attributes: { exclude: ["password"] } },
           { model: Travel, as: "travel" },
         ],
-        order: [["net", "ASC"]],
+        order: [["net", "DESC"]],
       });
+      console.log("connData", connData);
       const userData = connData.map((data) => {
         return {
           userId: data.userId,
@@ -26,35 +27,33 @@ const resultController = {
           userNet: data.net,
         };
       });
-      const settlements = []; //分帳紀錄
-      const sortedUsers = userData.sort(
-        (a, b) => Number(b.userNet) - Number(a.userNet)
-      );
+      console.log("userData", userData);
+      const settlements = [];
 
-      for (const positiveUser of sortedUsers) {
-        if (positiveUser.userNet <= 0) {
-          break;
-        }
+      const positiveUsers = userData.filter((user) => user.userNet > 0);
+      const negativeUsers = userData.filter((user) => user.userNet < 0);
 
-        for (const negativeUser of sortedUsers) {
-          if (negativeUser.userNet >= 0) {
-            continue;
+      for (const negativeUser of negativeUsers) {
+        let remainingAmount = Math.abs(negativeUser.userNet);
+
+        for (const positiveUser of positiveUsers) {
+          if (remainingAmount <= 0) {
+            break;
           }
 
-          // 算正數的net應收金額
           const amountToReceive = Math.min(
-            Math.abs(positiveUser.userNet),
-            Math.abs(negativeUser.userNet)
+            positiveUser.userNet,
+            remainingAmount
           );
 
-          // 更新用戶的net值
+          // 更新用户的net值
+          remainingAmount -= amountToReceive;
           positiveUser.userNet -= amountToReceive;
-          negativeUser.userNet += amountToReceive;
 
-          // 寫到settlement裡面紀錄
+          // 记录结算
           settlements.push({
-            payerId: negativeUser.userId,
-            owerId: positiveUser.userId,
+            payerId: positiveUser.userId, //該收錢的人
+            owerId: negativeUser.userId, // 該付錢的人
             amount: amountToReceive,
           });
         }
@@ -63,8 +62,8 @@ const resultController = {
       for (const settlement of settlements) {
         await Result.create({
           travelId: groupId,
-          owerId: settlement.owerId,
-          payerId: settlement.payerId,
+          payerId: settlement.payerId, // 該收錢的人
+          owerId: settlement.owerId, // 該付錢的人
           amount: settlement.amount,
           status: false,
         });
@@ -95,9 +94,9 @@ const resultController = {
         ],
       });
       res.json({
-        status:'success',
-        result:resultData
-      })
+        status: "success",
+        result: resultData,
+      });
     } catch (err) {
       console.log(err);
       res.status(500).json({
@@ -106,18 +105,59 @@ const resultController = {
       });
     }
   },
-  switchResultStatus : async(req, res) => {
+  switchResultStatus: async (req, res) => {
     try {
-      const groupId = req.params.groupId
-      const resultId = req.body.id
-      const resultData = await Result.findByPk(resultId)
+      const resultId = req.body.id;
+      const groupId = req.params.groupId;
+      const resultData = await Result.findByPk(resultId);
+
+      // 若是還未支付變成已支付，該收錢的減少net收錢數，該付錢的減少該付錢數
+      // 若是已支付取消支付，該收錢的增加回net，該付錢的增加付錢數
+      if (!resultData.stauts) {
+        //該收錢的人要減少net
+        const updatePayerConnNet = await UserTravelConn.findOne({
+          where: { userId: resultData.payerId, travelId: groupId },
+        });
+        updatePayerConnNet.update({
+          net: Number(updatePayerConnNet.net) - Number(resultData.amount),
+        });
+        console.log("payerNet", updatePayerConnNet);
+
+        //該付錢的人要增加net，減少負數
+        const updateOwerConnNet = await UserTravelConn.findOne({
+          where: { userId: resultData.owerId, travelId: groupId },
+        });
+        console.log("owerNet", updateOwerConnNet);
+        updateOwerConnNet.update({
+          net: Number(updateOwerConnNet.net) + Number(resultData.amount),
+        });
+      } else {
+        //該收錢的人要加回net
+        const updatePayerConnNet = await UserTravelConn.findOne({
+          where: { userId: resultData.payerId, travelId: groupId },
+        });
+        updatePayerConnNet.update({
+          net: Number(updatePayerConnNet.net) + Number(resultData.amount),
+        });
+        console.log("payerNet", updatePayerConnNet);
+
+        //該付錢的人要減回net，增加負數
+        const updateOwerConnNet = await UserTravelConn.findOne({
+          where: { userId: resultData.owerId, travelId: groupId },
+        });
+        console.log("owerNet", updateOwerConnNet);
+        updateOwerConnNet.update({
+          net: Number(updateOwerConnNet.net) - Number(resultData.amount),
+        });
+      }
+
       resultData.update({
-        status: !resultData.status
-      })
+        status: !resultData.status,
+      });
       res.json({
-        status:'success',
-        message:'成功修改支付狀況'
-      })
+        status: "success",
+        message: "成功修改支付狀況",
+      });
     } catch (err) {
       console.log(err);
       res.status(500).json({
@@ -125,8 +165,7 @@ const resultController = {
         message: err.message,
       });
     }
-  }
-  
+  },
 };
 
 module.exports = resultController;

@@ -8,7 +8,7 @@ const session = require("express-session");
 const flash = require("connect-flash");
 const passport = require("./config/passport");
 const routes = require("./routes");
-
+const httpProxy = require("http-proxy");
 const app = express();
 const port = 5000;
 const SESSION_SECRET = "secret";
@@ -19,8 +19,8 @@ app.use(
   })
 );
 const http = require("http");
-const server = http.createServer(app);
 const { Server } = require("socket.io");
+const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
@@ -28,7 +28,7 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
     credentials: true,
   },
-  path: "/socket.io",
+  path: "/swSocket/",
 });
 io.attach(server);
 const sessionMiddleware = session({
@@ -39,6 +39,7 @@ const sessionMiddleware = session({
     secure: false,
   },
 });
+const socket = require("./helpers/socket-helper")(io);
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
@@ -69,8 +70,15 @@ app.use((req, res, next) => {
   res.locals.user = req.user;
   next();
 });
-const socket = require("./helpers/socket-helper")(io);
+
 app.use(routes);
+
+httpProxy
+  .createProxyServer({
+    target: "http://localhost:3000",
+    ws: true,
+  })
+  .listen(80);
 
 server.listen(port, () => {
   console.log(`The web is on localhost:${port}`);

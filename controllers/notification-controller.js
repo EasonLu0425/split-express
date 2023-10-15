@@ -8,7 +8,7 @@ const notificationController = {
         where: { receiverId: currentUserId },
         include: [{ model: Travel }, { model: User, as: "sender" }],
         order: [["createdAt", "DESC"]],
-        limit: 8,
+        limit: 6,
       });
       const formData = notis.map((noti) => {
         if (noti.type === 101) {
@@ -122,6 +122,8 @@ const notificationController = {
              travelId: addNotiData.groupId,
            });
          });
+      } else if (addNotiData.type === "ITEM_DELETE") {
+        
       }
 
       res.json({

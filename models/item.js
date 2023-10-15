@@ -15,7 +15,7 @@ module.exports = (sequelize, DataTypes) => {
   Item.init(
     {
       name: DataTypes.STRING,
-      amount: DataTypes.DECIMAL,
+      amount: DataTypes.DECIMAL(10,2),
       itemTime: DataTypes.DATE,
       travelId: DataTypes.INTEGER,
     },

@@ -1,4 +1,5 @@
-const { Travel, User, UserTravelConn, Item, ItemDetail } = require("../models");
+const { Travel, User, UserTravelConn, Item, ItemDetail, Result } = require("../models");
+const { Op } = require("sequelize");
 
 const itemDetailController = {
   addItemDetails: async (req, res) => {
@@ -188,6 +189,48 @@ const itemDetailController = {
         status: "error",
         message: err.message,
       });
+    }
+  },
+  getUserInGroupDetail: async (req, res) => {
+    try {
+      const groupId = req.params.groupId;
+      const userId = req.params.userId;
+      const groupItems = await Travel.findByPk(groupId, {
+        include:[{model:Item}]
+      })
+      const itemIds = []
+      groupItems.Items.forEach( item => {
+        itemIds.push(item.id)
+      });
+      const userDetails = await ItemDetail.findAll({
+        where: { userId, itemId: { [Op.in]: itemIds } },
+        include:[Item]
+      });
+      //依照ItemTime排ASC
+      userDetails.sort((a, b) => {
+        const timeA = a.Item.itemTime;
+        const timeB = b.Item.itemTime;
+        return new Date(timeA) - new Date(timeB);
+      });
+
+      const userHavePaid = await Result.findAll({
+        where: {
+          [Op.or]: [{ owerId: userId }, { payerId: userId }],
+          status: true,
+        },
+      });
+      res.json({
+        stauts:'success',
+        result:{
+          details: userDetails,
+          paidResult:userHavePaid
+        }
+      });
+    } catch (err) {
+       res.status(500).json({
+         status: "error",
+         message: err.message,
+       });
     }
   },
 };

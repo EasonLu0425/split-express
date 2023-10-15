@@ -12,7 +12,7 @@ module.exports = {
         type: Sequelize.STRING,
       },
       amount: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10,2),
       },
       item_time: {
         type: Sequelize.DATE,

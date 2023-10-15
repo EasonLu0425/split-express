@@ -22,7 +22,7 @@ const userController = {
         })
       )
       .then((createdUser) => {
-        const authToken = jwt.sign(createdUser, process.env.JWT_SECRET, {
+        const authToken = jwt.sign(createdUser.toJSON(), process.env.JWT_SECRET, {
           expiresIn: "30d",
         });
         res.json({ status: "success", result: { authToken } });

@@ -21,6 +21,11 @@ const itemController = {
               },
             ],
           },
+          {
+            model: User,
+            as: "groupMembers",
+            attributes: { exclude: ["password"] },
+          },
         ],
         nest: true,
       });
@@ -37,6 +42,7 @@ const itemController = {
         groupName: travelData.name,
         groupRedirect:travelData.redirect,
         groupArchive: travelData.archive,
+        groupMembers: travelData.groupMembers,
         itemName: itemData.name,
         amount: itemData.amount,
         itemTime: itemData.itemTime,

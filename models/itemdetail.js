@@ -18,7 +18,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       userId: DataTypes.INTEGER,
       itemId: DataTypes.INTEGER,
-      amount: DataTypes.DECIMAL,
+      amount: DataTypes.DECIMAL(10,2),
       payer: DataTypes.BOOLEAN,
     },
     {

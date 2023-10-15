@@ -26,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       userId: DataTypes.INTEGER,
       travelId: DataTypes.INTEGER,
-      net: DataTypes.DECIMAL,
+      net: DataTypes.DECIMAL(10,2),
     },
     {
       sequelize,

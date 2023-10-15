@@ -130,7 +130,7 @@ const travelController = {
         redirect: false,
       });
       const resultData = await Result.findAll({
-        where: { travelId: groupId },
+        where: { travelId: groupId, status: false },
       });
       if (resultData.length > 0) {
         for (const result of resultData) {

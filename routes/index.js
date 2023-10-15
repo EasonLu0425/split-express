@@ -8,7 +8,6 @@ const userGroupConnController = require("../controllers/userGroupConn-controller
 const notificationController = require("../controllers/notification-controller");
 const itemDetailController = require("../controllers/itemDetail-controller");
 const resultController = require("../controllers/result-controller");
-const { userLogin } = require("../middleware/login-handler");
 const { apiErrorHandler } = require("../middleware/error-handler");
 const { authenticated } = require("../middleware/auth");
 
@@ -22,7 +21,11 @@ router.post(
   userController.login
 );
 router.post("/splitWizard/logout", userController.logout);
-
+router.get(
+  "/splitWizard/groups/:groupId/:userId/details",
+  // authenticated,
+  itemDetailController.getUserInGroupDetail
+);
 router.get(
   "/splitWizard/groups/:groupId/:itemId/edit",
   authenticated,
@@ -39,7 +42,7 @@ router.put(
   travelController.resetGroupRedirect
 );
 router.put(
-  "/splitWizard/groups/:groupId/putArchive",
+  "/splitWizard/groups/:groupId/setArchive",
   authenticated,
   travelController.putArchive
 );
@@ -49,7 +52,7 @@ router.put(
   itemController.editItem
 );
 router.put(
-  "/splitWizard/groups/:groupId/:itemId/details",
+  "/splitWizard/groups/:groupId/:itemId/editItemDetails",
   authenticated,
   itemDetailController.editItemDetails
 );

@@ -1,27 +1,38 @@
-const {User} = require('../models')
+const { User } = require("../models");
 let onlineUsers = [];
 
 module.exports = (io) => {
   io.on("connection", (socket) => {
-    console.log("a user connected");
+    console.log("socket connected");
 
-    socket.on("login", async () => {
-      const sessionUserId = socket.request.session.passport.user;
-      const userFilter = onlineUsers.find((item) => item.id === sessionUserId);
-       if (!userFilter) {
-         let user = await User.findByPk(sessionUserId);
-         user = user.toJSON();
-         onlineUsers.push({
-           id: user.id,
-           name: user.name,
-           account: user.account,
-           avatar: user.avatar,
-         });
-       }
+    socket.on("login", async (data) => {
+      const userFilter = onlineUsers.find(
+        (ou) => ou.currentUserId === data.currentUserId
+      );
+      if (!userFilter) {
+        onlineUsers.push(data);
+      }
+      console.log("online USer", onlineUsers);
     });
 
-    socket.on("notificationToServer", async ({data}) => {
-      console.log('get Client data', data)
+    socket.on("notificationToServer", async (data) => {
+      data.receiverIds.forEach(id => {
+        const receiver = onlineUsers.filter(user=> Number(user.currentUserId) === id)
+        if (receiver.length > 0) {
+          io.to(receiver[0].socketId).emit("notificationToClient");
+        }
+      });
+    });
+
+    socket.on("logout", (data) => {
+      onlineUsers = onlineUsers.filter(
+        (ou) => ou.currentUserId !== data.currentUserId
+      );
+      console.log("logoutOnlineUser", onlineUsers);
+    });
+
+    socket.on("disconnect", () => {
+      console.log("disconnection");
     });
   });
 };

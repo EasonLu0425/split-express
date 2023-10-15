@@ -26,9 +26,9 @@ module.exports = (sequelize, DataTypes) => {
   Result.init(
     {
       travelId: DataTypes.INTEGER,
-      owerId: DataTypes.INTEGER,
-      payerId: DataTypes.INTEGER,
-      amount: DataTypes.DECIMAL,
+      owerId: DataTypes.INTEGER, //takerId
+      payerId: DataTypes.INTEGER, //giverId
+      amount: DataTypes.DECIMAL(10,2),
       status: DataTypes.BOOLEAN,
     },
     {

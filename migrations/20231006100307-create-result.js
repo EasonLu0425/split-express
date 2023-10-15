@@ -12,16 +12,16 @@ module.exports = {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      ower_id: {
+      ower_id: { //taker_id
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      payer_id: {
+      payer_id: { // giver_id
         type: Sequelize.INTEGER,
         allowNull: false,
       },
       amount: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10,2),
         allowNull: false,
       },
       status: {

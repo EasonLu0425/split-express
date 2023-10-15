@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       net: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10,2),
       },
       created_at: {
         allowNull: false,

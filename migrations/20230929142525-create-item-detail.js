@@ -15,7 +15,7 @@ module.exports = {
         type: Sequelize.INTEGER,
       },
       amount: {
-        type: Sequelize.DECIMAL,
+        type: Sequelize.DECIMAL(10,2),
       },
       payer: {
         type: Sequelize.BOOLEAN,
